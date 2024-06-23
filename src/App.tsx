@@ -1,35 +1,29 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { Provider } from "react-redux";
+import Table from "./features/table/Table";
+import { TableData } from "./types";
+import { store } from "./store/store";
+
+const sampleData: TableData = {
+    columns: [
+        { id: "name", ordinalNo: 1, title: "Name", type: "string" },
+        { id: "age", ordinalNo: 2, title: "Age", type: "number" },
+        { id: "isActive", ordinalNo: 3, title: "Active", type: "boolean" },
+    ],
+    data: [
+        { id: "1", name: "John Doe", age: 30, isActive: true },
+        { id: "2", name: "Jane Smith", age: 25, isActive: false },
+    ],
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    return (
+        <Provider store={store}>
+            <div className="App">
+                <Table tableData={sampleData} />
+            </div>
+        </Provider>
+    );
 }
 
-export default App
+export default App;
