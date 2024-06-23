@@ -1,5 +1,3 @@
-// src/components/Table.tsx
-
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { TableData } from "../../types";
@@ -21,9 +19,17 @@ function Table(props: { tableData: TableData }) {
     useEffect(() => {
         if (!data.length) {
             dispatch(setData(tableData.data));
+        }
+        if (!visibleColumns.length) {
             dispatch(setVisibleColumns(tableData.columns.map((col) => col.id)));
         }
-    }, [dispatch, data.length, tableData.data, tableData.columns]);
+    }, [
+        dispatch,
+        data.length,
+        visibleColumns.length,
+        tableData.data,
+        tableData.columns,
+    ]);
 
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement>,
