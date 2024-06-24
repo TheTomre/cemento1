@@ -32,6 +32,11 @@ import {
     InputAdornment,
     FormGroup,
     FormControlLabel,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
 } from "@mui/material";
 import { Edit, Delete, Save, Cancel, Search } from "@mui/icons-material";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
@@ -48,6 +53,8 @@ function CustomTable(props: { tableData: TableData }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [editRowId, setEditRowId] = useState<string | null>(null);
     const [editRowData, setEditRowData] = useState<any>({});
+    const [open, setOpen] = useState(false);
+    const [rowToDelete, setRowToDelete] = useState<string | null>(null);
     const rowsPerPage = 10;
 
     useEffect(() => {
@@ -131,7 +138,21 @@ function CustomTable(props: { tableData: TableData }) {
     };
 
     const handleDelete = (rowId: string) => {
-        dispatch(deleteRow(rowId));
+        setRowToDelete(rowId);
+        setOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (rowToDelete) {
+            dispatch(deleteRow(rowToDelete));
+        }
+        setOpen(false);
+        setRowToDelete(null);
+    };
+
+    const cancelDelete = () => {
+        setOpen(false);
+        setRowToDelete(null);
     };
 
     const getSortedData = useCallback(() => {
@@ -214,7 +235,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        style={{ marginTop: "8px", width: "100px" }}
+                        style={{ marginTop: "8px", width: "80px" }}
                     />
                 );
             case "boolean":
@@ -245,7 +266,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        style={{ marginTop: "8px", width: "200px" }}
+                        style={{ marginTop: "8px", width: "150px" }}
                     />
                 );
             case "select":
@@ -263,7 +284,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        style={{ marginTop: "8px", width: "200px" }}
+                        style={{ marginTop: "8px", width: "100px" }}
                     >
                         {column?.options?.map((option) => (
                             <MenuItem key={option} value={option}>
@@ -285,7 +306,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        style={{ marginTop: "8px", width: "200px" }}
+                        style={{ marginTop: "8px", width: "150px" }}
                     />
                 );
         }
@@ -435,6 +456,11 @@ function CustomTable(props: { tableData: TableData }) {
                         style={{
                             fontWeight:
                                 currentPage === page ? "bold" : "normal",
+                            backgroundColor:
+                                currentPage === page
+                                    ? "#5f64f5"
+                                    : "transparent",
+                            color: currentPage === page ? "white" : "black",
                         }}
                         disabled={typeof page !== "number"}
                     >
@@ -496,6 +522,33 @@ function CustomTable(props: { tableData: TableData }) {
                 </Table>
             </TableContainer>
             {renderPagination()}
+            <Dialog
+                open={open}
+                onClose={cancelDelete}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Confirm Delete"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to delete this row?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={cancelDelete} color="primary">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={confirmDelete}
+                        style={{ color: "red" }}
+                        autoFocus
+                    >
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Paper>
     );
 }
