@@ -13,10 +13,29 @@ import {
     toggleColumnVisibility,
     setVisibleColumns,
 } from "../../features/table/visibleColumnsSlice";
-import { Button, IconButton, TextField } from "@mui/material";
-import { Edit, Delete, Save, Cancel } from "@mui/icons-material";
+import {
+    Button,
+    IconButton,
+    TextField,
+    Checkbox,
+    MenuItem,
+    Select,
+    TableContainer,
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    TableCell,
+    TableSortLabel,
+    Paper,
+    Toolbar,
+    InputAdornment,
+    FormGroup,
+    FormControlLabel,
+} from "@mui/material";
+import { Edit, Delete, Save, Cancel, Search } from "@mui/icons-material";
 
-function Table(props: { tableData: TableData }) {
+function CustomTable(props: { tableData: TableData }) {
     const { tableData } = props;
     const dispatch = useAppDispatch();
     const { data, sortColumn, sortOrder, searchQuery } = useAppSelector(
@@ -50,7 +69,7 @@ function Table(props: { tableData: TableData }) {
             event: React.ChangeEvent<
                 HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
             >,
-            rowId: string,
+            _: string,
             columnId: string
         ) => {
             let value: any;
@@ -142,26 +161,30 @@ function Table(props: { tableData: TableData }) {
 
     const renderHeader = () => {
         return (
-            <tr>
+            <TableRow>
                 {tableData.columns.map((column) =>
                     visibleColumns.includes(column.id) ? (
-                        <th
+                        <TableCell
                             key={column.id}
-                            style={{ width: column.width }}
-                            onClick={() => handleSort(column.id)}
-                            className="cursor-pointer"
+                            style={{ width: column.width, fontWeight: "bold" }}
+                            sortDirection={
+                                sortColumn === column.id ? sortOrder : false
+                            }
                         >
-                            {column.title}{" "}
-                            {sortColumn === column.id
-                                ? sortOrder === "asc"
-                                    ? "↑"
-                                    : "↓"
-                                : ""}
-                        </th>
+                            <TableSortLabel
+                                active={sortColumn === column.id}
+                                direction={
+                                    sortColumn === column.id ? sortOrder : "asc"
+                                }
+                                onClick={() => handleSort(column.id)}
+                            >
+                                {column.title}
+                            </TableSortLabel>
+                        </TableCell>
                     ) : null
                 )}
-                <th>Actions</th>
-            </tr>
+                <TableCell style={{ fontWeight: "bold" }}>Actions</TableCell>
+            </TableRow>
         );
     };
 
@@ -171,6 +194,15 @@ function Table(props: { tableData: TableData }) {
         value: any,
         rowId: string
     ) => {
+        const inputStyles = {
+            padding: "5px",
+            fontSize: "14px",
+            width: "80%",
+            margin: "0 auto",
+            boxSizing: "border-box",
+            maxHeight: "30px",
+        };
+
         switch (columnType) {
             case "number":
                 return (
@@ -184,12 +216,12 @@ function Table(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
+                        sx={inputStyles}
                     />
                 );
             case "boolean":
                 return (
-                    <input
-                        type="checkbox"
+                    <Checkbox
                         checked={value}
                         onChange={(e) =>
                             handleInputChange(
@@ -198,7 +230,12 @@ function Table(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        className="form-checkbox"
+                        sx={{
+                            padding: "0",
+                            margin: "0 auto",
+                            display: "block",
+                            height: "30px",
+                        }}
                     />
                 );
             case "date":
@@ -213,6 +250,7 @@ function Table(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
+                        sx={inputStyles}
                     />
                 );
             case "select":
@@ -220,8 +258,7 @@ function Table(props: { tableData: TableData }) {
                     (col) => col.id === columnId
                 );
                 return (
-                    <TextField
-                        select
+                    <Select
                         value={value}
                         onChange={(e) =>
                             handleInputChange(
@@ -230,16 +267,14 @@ function Table(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        SelectProps={{
-                            native: true,
-                        }}
+                        sx={inputStyles}
                     >
                         {column?.options?.map((option) => (
-                            <option key={option} value={option}>
+                            <MenuItem key={option} value={option}>
                                 {option}
-                            </option>
+                            </MenuItem>
                         ))}
-                    </TextField>
+                    </Select>
                 );
             default:
                 return (
@@ -253,6 +288,7 @@ function Table(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
+                        sx={inputStyles}
                     />
                 );
         }
@@ -263,10 +299,10 @@ function Table(props: { tableData: TableData }) {
         const end = start + rowsPerPage;
         const pageRows = getFilteredData().slice(start, end);
         return pageRows.map((row) => (
-            <tr key={row.id} className="border-b">
+            <TableRow key={row.id} className="border-b">
                 {tableData.columns.map((column) =>
                     visibleColumns.includes(column.id) ? (
-                        <td key={column.id} className="p-2">
+                        <TableCell key={column.id}>
                             {editRowId === row.id
                                 ? renderInput(
                                       column.type,
@@ -274,11 +310,17 @@ function Table(props: { tableData: TableData }) {
                                       editRowData[column.id],
                                       row.id
                                   )
-                                : row[column.id]}
-                        </td>
+                                : column.type === "boolean"
+                                ? row[column.id]
+                                    ? "Yes"
+                                    : "No"
+                                : row[column.id] !== undefined
+                                ? row[column.id]
+                                : null}
+                        </TableCell>
                     ) : null
                 )}
-                <td className="p-2">
+                <TableCell>
                     {editRowId === row.id ? (
                         <>
                             <IconButton
@@ -310,23 +352,30 @@ function Table(props: { tableData: TableData }) {
                             </IconButton>
                         </>
                     )}
-                </td>
-            </tr>
+                </TableCell>
+            </TableRow>
         ));
     };
 
     const renderColumnVisibilityControls = () => {
-        return tableData.columns.map((column) => (
-            <label key={column.id} className="mr-4">
-                <input
-                    type="checkbox"
-                    checked={visibleColumns.includes(column.id)}
-                    onChange={() => dispatch(toggleColumnVisibility(column.id))}
-                    className="form-checkbox"
-                />
-                {column.title}
-            </label>
-        ));
+        return (
+            <FormGroup row>
+                {tableData.columns.map((column) => (
+                    <FormControlLabel
+                        key={column.id}
+                        control={
+                            <Checkbox
+                                checked={visibleColumns.includes(column.id)}
+                                onChange={() =>
+                                    dispatch(toggleColumnVisibility(column.id))
+                                }
+                            />
+                        }
+                        label={column.title}
+                    />
+                ))}
+            </FormGroup>
+        );
     };
 
     const renderPagination = () => {
@@ -366,24 +415,36 @@ function Table(props: { tableData: TableData }) {
     };
 
     return (
-        <div className="p-4">
-            <div className="mb-4">{renderColumnVisibilityControls()}</div>
+        <Paper className="p-4">
+            <Toolbar className="mb-4">
+                <div className="flex">{renderColumnVisibilityControls()}</div>
+            </Toolbar>
             <TextField
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 variant="outlined"
+                size="small"
                 fullWidth
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Search />
+                        </InputAdornment>
+                    ),
+                }}
                 className="mb-4"
             />
-            <table className="min-w-full bg-white border border-gray-300">
-                <thead>{renderHeader()}</thead>
-                <tbody>{renderRows()}</tbody>
-            </table>
+            <TableContainer>
+                <Table className="min-w-full bg-white border border-gray-300">
+                    <TableHead>{renderHeader()}</TableHead>
+                    <TableBody>{renderRows()}</TableBody>
+                </Table>
+            </TableContainer>
             {renderPagination()}
-        </div>
+        </Paper>
     );
 }
 
-export default Table;
+export default CustomTable;

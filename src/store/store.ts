@@ -1,5 +1,3 @@
-// src/store.ts
-
 import { configureStore } from '@reduxjs/toolkit';
 import dataReducer from '../features/table/dataSlice';
 import visibleColumnsReducer from '../features/table/visibleColumnsSlice';
