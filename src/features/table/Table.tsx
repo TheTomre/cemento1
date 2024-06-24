@@ -34,6 +34,13 @@ import {
     FormControlLabel,
 } from "@mui/material";
 import { Edit, Delete, Save, Cancel, Search } from "@mui/icons-material";
+import {
+    ChevronDoubleLeftIcon,
+    ChevronDownIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    ChevronUpIcon,
+} from "@heroicons/react/20/solid";
 
 function CustomTable(props: { tableData: TableData }) {
     const { tableData } = props;
@@ -166,7 +173,7 @@ function CustomTable(props: { tableData: TableData }) {
                     visibleColumns.includes(column.id) ? (
                         <TableCell
                             key={column.id}
-                            style={{ width: column.width, fontWeight: "bold" }}
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             sortDirection={
                                 sortColumn === column.id ? sortOrder : false
                             }
@@ -177,13 +184,27 @@ function CustomTable(props: { tableData: TableData }) {
                                     sortColumn === column.id ? sortOrder : "asc"
                                 }
                                 onClick={() => handleSort(column.id)}
+                                className="flex items-center justify-between"
                             >
                                 {column.title}
+                                <span>
+                                    {sortColumn === column.id ? (
+                                        sortOrder === "asc" ? (
+                                            <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+                                        ) : (
+                                            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                                        )
+                                    ) : (
+                                        <ChevronDoubleLeftIcon className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100" />
+                                    )}
+                                </span>
                             </TableSortLabel>
                         </TableCell>
                     ) : null
                 )}
-                <TableCell style={{ fontWeight: "bold" }}>Actions</TableCell>
+                <TableCell className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                </TableCell>
             </TableRow>
         );
     };
@@ -194,13 +215,8 @@ function CustomTable(props: { tableData: TableData }) {
         value: any,
         rowId: string
     ) => {
-        const inputStyles = {
-            padding: "5px",
-            fontSize: "14px",
-            width: "100%", // Adjust to fit within the table cell
-            boxSizing: "border-box",
-            height: "30px",
-        };
+        const inputStyles =
+            "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50";
 
         switch (columnType) {
             case "number":
@@ -216,6 +232,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
+                        className={inputStyles}
                     />
                 );
             case "boolean":
@@ -230,6 +247,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
+                        className={inputStyles}
                     />
                 );
             case "date":
@@ -245,6 +263,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
+                        className={inputStyles}
                     />
                 );
             case "select":
@@ -262,6 +281,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
+                        className={inputStyles}
                     >
                         {column?.options?.map((option) => (
                             <MenuItem key={option} value={option}>
@@ -283,6 +303,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
+                        className={inputStyles}
                     />
                 );
         }
@@ -296,7 +317,10 @@ function CustomTable(props: { tableData: TableData }) {
             <TableRow key={row.id} className="border-b">
                 {tableData.columns.map((column) =>
                     visibleColumns.includes(column.id) ? (
-                        <TableCell key={column.id}>
+                        <TableCell
+                            key={column.id}
+                            className="px-6 py-4 whitespace-nowrap"
+                        >
                             {editRowId === row.id
                                 ? renderInput(
                                       column.type,
@@ -314,7 +338,7 @@ function CustomTable(props: { tableData: TableData }) {
                         </TableCell>
                     ) : null
                 )}
-                <TableCell>
+                <TableCell className="px-6 py-4 whitespace-nowrap">
                     {editRowId === row.id ? (
                         <>
                             <IconButton
@@ -381,17 +405,17 @@ function CustomTable(props: { tableData: TableData }) {
                         handlePageChange(Math.max(1, currentPage - 1))
                     }
                     disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                    Previous
+                    <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
                 </Button>
                 {Array.from({ length: totalPages }, (_, index) => (
                     <Button
                         key={index + 1}
                         onClick={() => handlePageChange(index + 1)}
-                        style={{
-                            fontWeight:
-                                currentPage === index + 1 ? "bold" : "normal",
-                        }}
+                        className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${
+                            currentPage === index + 1 ? "font-bold" : ""
+                        }`}
                     >
                         {index + 1}
                     </Button>
@@ -401,8 +425,9 @@ function CustomTable(props: { tableData: TableData }) {
                         handlePageChange(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                    Next
+                    <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
                 </Button>
             </div>
         );
