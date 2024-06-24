@@ -197,10 +197,9 @@ function CustomTable(props: { tableData: TableData }) {
         const inputStyles = {
             padding: "5px",
             fontSize: "14px",
-            width: "80%",
-            margin: "0 auto",
+            width: "100%", // Adjust to fit within the table cell
             boxSizing: "border-box",
-            maxHeight: "30px",
+            height: "30px",
         };
 
         switch (columnType) {
@@ -216,7 +215,7 @@ function CustomTable(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        sx={inputStyles}
+                        size="small"
                     />
                 );
             case "boolean":
@@ -230,12 +229,7 @@ function CustomTable(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        sx={{
-                            padding: "0",
-                            margin: "0 auto",
-                            display: "block",
-                            height: "30px",
-                        }}
+                        size="small"
                     />
                 );
             case "date":
@@ -250,7 +244,7 @@ function CustomTable(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        sx={inputStyles}
+                        size="small"
                     />
                 );
             case "select":
@@ -267,7 +261,7 @@ function CustomTable(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        sx={inputStyles}
+                        size="small"
                     >
                         {column?.options?.map((option) => (
                             <MenuItem key={option} value={option}>
@@ -288,7 +282,7 @@ function CustomTable(props: { tableData: TableData }) {
                                 columnId
                             )
                         }
-                        sx={inputStyles}
+                        size="small"
                     />
                 );
         }
