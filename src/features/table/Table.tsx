@@ -34,13 +34,7 @@ import {
     FormControlLabel,
 } from "@mui/material";
 import { Edit, Delete, Save, Cancel, Search } from "@mui/icons-material";
-import {
-    ChevronDoubleLeftIcon,
-    ChevronDownIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    ChevronUpIcon,
-} from "@heroicons/react/20/solid";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 
 function CustomTable(props: { tableData: TableData }) {
     const { tableData } = props;
@@ -168,12 +162,15 @@ function CustomTable(props: { tableData: TableData }) {
 
     const renderHeader = () => {
         return (
-            <TableRow>
+            <TableRow style={{ backgroundColor: "#f0f0f0" }}>
                 {tableData.columns.map((column) =>
                     visibleColumns.includes(column.id) ? (
                         <TableCell
                             key={column.id}
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            style={{
+                                fontWeight: "bold",
+                                padding: "12px",
+                            }}
                             sortDirection={
                                 sortColumn === column.id ? sortOrder : false
                             }
@@ -184,25 +181,13 @@ function CustomTable(props: { tableData: TableData }) {
                                     sortColumn === column.id ? sortOrder : "asc"
                                 }
                                 onClick={() => handleSort(column.id)}
-                                className="flex items-center justify-between"
                             >
                                 {column.title}
-                                <span>
-                                    {sortColumn === column.id ? (
-                                        sortOrder === "asc" ? (
-                                            <ChevronUpIcon className="w-4 h-4 text-gray-400" />
-                                        ) : (
-                                            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
-                                        )
-                                    ) : (
-                                        <ChevronDoubleLeftIcon className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100" />
-                                    )}
-                                </span>
                             </TableSortLabel>
                         </TableCell>
                     ) : null
                 )}
-                <TableCell className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <TableCell style={{ fontWeight: "bold", padding: "12px" }}>
                     Actions
                 </TableCell>
             </TableRow>
@@ -215,9 +200,6 @@ function CustomTable(props: { tableData: TableData }) {
         value: any,
         rowId: string
     ) => {
-        const inputStyles =
-            "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50";
-
         switch (columnType) {
             case "number":
                 return (
@@ -232,7 +214,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        className={inputStyles}
+                        style={{ marginTop: "8px", width: "100px" }}
                     />
                 );
             case "boolean":
@@ -247,7 +229,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        className={inputStyles}
+                        style={{ marginTop: "8px" }}
                     />
                 );
             case "date":
@@ -263,7 +245,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        className={inputStyles}
+                        style={{ marginTop: "8px", width: "200px" }}
                     />
                 );
             case "select":
@@ -281,7 +263,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        className={inputStyles}
+                        style={{ marginTop: "8px", width: "200px" }}
                     >
                         {column?.options?.map((option) => (
                             <MenuItem key={option} value={option}>
@@ -303,7 +285,7 @@ function CustomTable(props: { tableData: TableData }) {
                             )
                         }
                         size="small"
-                        className={inputStyles}
+                        style={{ marginTop: "8px", width: "200px" }}
                     />
                 );
         }
@@ -314,13 +296,10 @@ function CustomTable(props: { tableData: TableData }) {
         const end = start + rowsPerPage;
         const pageRows = getFilteredData().slice(start, end);
         return pageRows.map((row) => (
-            <TableRow key={row.id} className="border-b">
+            <TableRow key={row.id}>
                 {tableData.columns.map((column) =>
                     visibleColumns.includes(column.id) ? (
-                        <TableCell
-                            key={column.id}
-                            className="px-6 py-4 whitespace-nowrap"
-                        >
+                        <TableCell key={column.id} style={{ padding: "12px" }}>
                             {editRowId === row.id
                                 ? renderInput(
                                       column.type,
@@ -338,7 +317,7 @@ function CustomTable(props: { tableData: TableData }) {
                         </TableCell>
                     ) : null
                 )}
-                <TableCell className="px-6 py-4 whitespace-nowrap">
+                <TableCell style={{ padding: "12px" }}>
                     {editRowId === row.id ? (
                         <>
                             <IconButton
@@ -398,26 +377,68 @@ function CustomTable(props: { tableData: TableData }) {
 
     const renderPagination = () => {
         const totalPages = Math.ceil(getFilteredData().length / rowsPerPage);
+        const maxPages = 5;
+        const pageNumbers = [];
+
+        if (totalPages <= maxPages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                pageNumbers.push(1, 2, 3, "...", totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(
+                    1,
+                    "...",
+                    totalPages - 2,
+                    totalPages - 1,
+                    totalPages
+                );
+            } else {
+                pageNumbers.push(
+                    1,
+                    "...",
+                    currentPage - 1,
+                    currentPage,
+                    currentPage + 1,
+                    "...",
+                    totalPages
+                );
+            }
+        }
+
         return (
-            <div className="flex justify-center mt-4">
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "16px",
+                }}
+            >
                 <Button
                     onClick={() =>
                         handlePageChange(Math.max(1, currentPage - 1))
                     }
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                    <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                    <ChevronLeftIcon
+                        style={{ width: "20px", height: "20px" }}
+                    />
                 </Button>
-                {Array.from({ length: totalPages }, (_, index) => (
+                {pageNumbers.map((page, index) => (
                     <Button
-                        key={index + 1}
-                        onClick={() => handlePageChange(index + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${
-                            currentPage === index + 1 ? "font-bold" : ""
-                        }`}
+                        key={index}
+                        onClick={() =>
+                            typeof page === "number" && handlePageChange(page)
+                        }
+                        style={{
+                            fontWeight:
+                                currentPage === page ? "bold" : "normal",
+                        }}
+                        disabled={typeof page !== "number"}
                     >
-                        {index + 1}
+                        {page}
                     </Button>
                 ))}
                 <Button
@@ -425,38 +446,51 @@ function CustomTable(props: { tableData: TableData }) {
                         handlePageChange(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                 >
-                    <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                    <ChevronRightIcon
+                        style={{ width: "20px", height: "20px" }}
+                    />
                 </Button>
             </div>
         );
     };
 
     return (
-        <Paper className="p-4">
-            <Toolbar className="mb-4">
-                <div className="flex">{renderColumnVisibilityControls()}</div>
-            </Toolbar>
-            <TextField
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                variant="outlined"
-                size="small"
-                fullWidth
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <Search />
-                        </InputAdornment>
-                    ),
+        <Paper style={{ padding: "24px" }}>
+            <Toolbar
+                style={{
+                    marginBottom: "16px",
+                    justifyContent: "space-between",
                 }}
-                className="mb-4"
-            />
+            >
+                <div style={{ display: "flex" }}>
+                    {renderColumnVisibilityControls()}
+                </div>
+                <TextField
+                    type="text"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    variant="outlined"
+                    size="small"
+                    style={{ width: "300px" }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+            </Toolbar>
             <TableContainer>
-                <Table className="min-w-full bg-white border border-gray-300">
+                <Table
+                    style={{
+                        minWidth: "100%",
+                        backgroundColor: "white",
+                        border: "1px solid #ccc",
+                    }}
+                >
                     <TableHead>{renderHeader()}</TableHead>
                     <TableBody>{renderRows()}</TableBody>
                 </Table>
